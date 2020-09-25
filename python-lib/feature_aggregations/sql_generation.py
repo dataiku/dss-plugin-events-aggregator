@@ -177,7 +177,7 @@ def _make_prefilter(aggregation_params, transform_params):
 def _get_widest_window(aggregation_params): # or null if there is an unbounded window
     if aggregation_params.whole_history_window_enabled:
         return None, None
-    units = ['day', 'week', 'month', 'row']
+    units = ['day', 'week', 'month', 'year', 'row']
     widest = (0, 'day')
     for window in aggregation_params.windows:
         if (units.index(window[1]) > units.index(widest[1])) or (units.index(window[1]) == units.index(widest[1]) and window[0] >= widest[0]): #NB: 60 days < 1 month here

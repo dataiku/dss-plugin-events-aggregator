@@ -3,8 +3,8 @@ import json
 import os.path
 import logging
 
-from feature_aggregator import AggregationParams
-from preprocessing import CardinalityLimiterParams
+from feature_aggregations.feature_aggregator import AggregationParams
+from feature_aggregations.preprocessing import CardinalityLimiterParams
 
 logger = logging.getLogger('afe')
 

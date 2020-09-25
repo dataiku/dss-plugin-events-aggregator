@@ -1053,13 +1053,13 @@ def _prefilter(query, aggregation_params, transform_params, population=None, win
         
 def _get_smallest_window(aggregation_params): # or null if there is an unbounded window
     #units = ['day', 'week', 'month', 'row']
-    units = ['row', 'month', 'week', 'day'] 
-    smallest = (np.inf, 'month')
+    units = ['row', 'year', 'month', 'week', 'day']
+    smallest = (np.inf, 'year')
     for window in aggregation_params.windows:
         if window[0]:
             if (units.index(window[1]) > units.index(smallest[1])) or (units.index(window[1]) == units.index(smallest[1]) and window[0] <= smallest[0]): #NB: 60 days < 1 month here
                 smallest = window
-    if smallest == (np.inf, 'month'):
+    if smallest == (np.inf, 'year'):
         return (1, 'day') 
 
     return smallest
@@ -1067,7 +1067,7 @@ def _get_smallest_window(aggregation_params): # or null if there is an unbounded
 def _get_widest_window(aggregation_params): # or null if there is an unbounded window
     if aggregation_params.whole_history_window_enabled:
         return None, None
-    units = ['day', 'week', 'month', 'row']
+    units = ['day', 'week', 'month', 'year', 'row']
     widest = (0, 'day')
     for window in aggregation_params.windows:
         if (units.index(window[1]) > units.index(widest[1])) or (units.index(window[1]) == units.index(widest[1]) and window[0] >= widest[0]): #NB: 60 days < 1 month here

@@ -11,10 +11,10 @@ from dataiku.sql import toSQL
 from dataiku.sql import Expression, Column, List, Constant, Interval, SelectQuery, Window, TimeUnit, ColumnType
 
 
-import sql_generation
-from preprocessing import CardinalityLimiter
-from sql_generation import dialectHandler
-import aggreagation_queries as agg
+from feature_aggregations import sql_generation
+from feature_aggregations.preprocessing import CardinalityLimiter
+from feature_aggregations.sql_generation import dialectHandler
+import feature_aggregations.aggreagation_queries as agg
 
 logger = logging.getLogger('afe')
 
@@ -125,7 +125,10 @@ class FeatureAggregator:
     def _compute_distinct_values(self, column, dataset):
         sql_query = sql_generation.make_distinct_values_query(column, dataset)
         res = dialectHandler(dataset).get_executor().query_to_iter(sql_query)
-        return {(res_item[0]).encode('utf-8'): res_item[1] for res_item in res.iter_tuples()} # {value1: occurence1, ...}
+        try:
+            return {str(res_item[0]): res_item[1] for res_item in res.iter_tuples()} # {value1: occurence1, ...}
+        except: # weird unicode stuff
+            return {(res_item[0]).encode('utf-8'): res_item[1] for res_item in res.iter_tuples()} # {value1: occurence1, ...}
 
 
     #TODO too complex
