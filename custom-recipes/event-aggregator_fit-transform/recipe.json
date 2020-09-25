@@ -1,0 +1,273 @@
+{
+    "meta": {
+        "label": "Feature factory: event aggregator",
+        "description": "Automatically generate multi-scale aggregates for events datasets, these aggregates can be fed into a machine learning model",
+        "author": "Dataiku (Du Phan, Joachim Zentici)",
+        "tags": ["Feature engineering", "Machine learning", "Time series"]
+    },
+    "kind": "PYTHON",
+    "selectableFromDataset": "input_dataset", 
+    "inputRoles": [
+        {
+            "name": "input_dataset",
+            "label": "Input dataset",
+            "description": "",
+            "arity": "UNARY",
+            "required": true,
+            "acceptsDataset": true
+        }
+    ],
+
+    "outputRoles": [
+        {
+            "name": "output_dataset",
+            "label": "Augmented table with all the aggregated features",
+            "description": "Dataset after feature engineering",
+            "arity": "UNARY",
+            "required": true,
+            "acceptsDataset": true
+        },
+        {
+            "name": "output_folder",
+            "label": "Model folder (optional)",
+            "description": "Folder that stores the model parameters and metadata for use from python code (see documentation)",
+            "arity": "UNARY",
+            "required": false,
+            "acceptsDataset": false,
+            "acceptsManagedFolder": true
+        }
+    ],
+
+    "params": [
+        {
+            "name": "sep0",
+            "label": "Group definition",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "aggregation_keys",
+            "label": "Aggregation keys",
+            "type": "COLUMNS",
+            "columnRole": "input_dataset"
+        },
+        {
+            "name": "sep9",
+            "label": "Aggregation settings",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "time_reference_type",
+            "label": "Aggregation level",
+            "type": "SELECT",
+            "selectChoices": [
+                {
+                    "value": "fixed_timestamp",
+                    "label": "By group"
+                },
+                {
+                    "value": "rolling_window",
+                    "label": "By event"
+                }
+            ],
+            "mandatory": true,
+            "defaultValue": "fixed_timestamp"
+        },
+        {
+            "name": "sep4",
+            "label": "Time settings",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "timestamp_column",
+            "label": "Timestamp column",
+            "description": "Column that defines the temporal dimension.",
+            "type": "COLUMN",
+            "columnRole": "input_dataset"
+        },
+        {
+            "name": "ref_date",
+            "label": "Reference date (optional)",
+            "type": "STRING",
+            "description":"YYYY-mm-dd. All events after this date will be removed.",
+            "mandatory": false
+        },
+        {
+            "name": "buffer_width",
+            "label": "Buffer width (optional)",
+            "type": "INT",
+            "description":"Number of events to jump back.",
+            "mandatory": false,
+            "visibilityCondition": "model.time_reference_type == 'rolling_window'"
+        },
+        {
+            "name": "sep1",
+            "label": "Input features",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "input_features_definition",
+            "label": "Input features definition",
+            "type": "SELECT",
+            "selectChoices": [
+                { "value": "manual", "label": "Manual"},
+                { "value": "auto", "label": "Automatic"}
+            ],
+            "defaultValue": "auto",
+            "description": ""
+        },
+        {
+            "name": "numerical_columns",
+            "label": "Numerical columns",
+            "type": "COLUMNS",
+            "columnRole": "input_dataset",
+            "visibilityCondition": "model.input_features_definition == 'manual' && !model.auto_type_inference"
+        },
+        {
+            "name": "categorical_columns",
+            "label": "Categorical columns",
+            "type": "COLUMNS",
+            "columnRole": "input_dataset",
+            "visibilityCondition": "model.input_features_definition == 'manual' && !model.auto_type_inference"
+        },
+        {
+            "name": "sep2",
+            "label": "Temporal windows",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "use_temporal_window",
+            "label": "Specify temporal windows",
+            "description": "If no temporal window is defined, aggregations are computed on all history.",
+            "type": "BOOLEAN"
+        },
+        {
+            "name": "windows_widths_day",
+            "label": " - window width in days",
+            "description": "Optional. Use comma-separated values for several windows",
+            "type": "STRING",
+            "visibilityCondition": "model.use_temporal_window && model.time_reference_type == 'fixed_timestamp'"
+        },
+        {
+            "name": "windows_widths_week",
+            "label": " - window width in weeks",
+            "description": "Optional. Use comma-separated values for several windows",
+            "type": "STRING",
+            "visibilityCondition": "model.use_temporal_window && model.time_reference_type == 'fixed_timestamp'"
+        },
+        {
+            "name": "windows_widths_month",
+            "label": " - window width in months",
+            "description": "Optional. Use comma-separated values for several windows",
+            "type": "STRING",
+            "visibilityCondition": "model.use_temporal_window && model.time_reference_type == 'fixed_timestamp'"
+        },
+        {
+            "name": "windows_widths_year",
+            "label": " - window width in years",
+            "description": "Optional. Use comma-separated values for several windows",
+            "type": "STRING",
+            "visibilityCondition": "model.use_temporal_window && model.time_reference_type == 'fixed_timestamp'"
+        },
+        {
+            "name": "windows_widths_row",
+            "label": " - window width in rows",
+            "description": "Optional. Use comma-separated values for several windows",
+            "type": "STRING",
+            "visibilityCondition": "model.use_temporal_window && model.time_reference_type == 'rolling_window'"
+        },
+        {
+            "name": "num_windows_per_type",
+            "label": "Windows of each type",
+            "type": "INT",
+            "description":"Ex: use windows of 1 week and set this to 3 to compute aggregates for each of the past 3 weeks",
+            "defaultValue": 1,
+            "mandatory": false,
+            "visibilityCondition": "model.use_temporal_window"
+        },
+        {
+            "name": "whole_history_window_enabled",
+            "label": " - add a window with all history",
+            "type": "BOOLEAN",
+            "visibilityCondition": "model.use_temporal_window"
+        },
+        {
+            "name": "sep3",
+            "label": "Advanced configuration",
+            "type": "SEPARATOR"
+        },
+        {
+            "name": "advance_activate",
+            "label": "Open advanced options",
+            "type": "BOOLEAN"
+        },
+        {
+            "name": "encoding_feature",
+            "label": "Encode feature's name",
+            "description": "Encode feature's name to avoid exceeding column name limit.",
+            "type": "BOOLEAN",
+            "visibilityCondition": "model.advance_activate"
+        },
+        {
+            "name": "population_definition_method",
+            "label": "Populations",
+            "type": "SELECT",
+            "selectChoices": [
+                    { "value": "whole_dataset", "label": "Whole dataset"},
+                    { "value": "manual", "label": "Manual"},
+                    { "value": "brute_force", "label": "Try all combinations"}
+            ],
+            "defaultValue": "whole_dataset",
+            "visibilityCondition": "model.advance_activate"
+        },
+        {
+            "name": "num_populations",
+            "label": "Number of populations",
+            "description": "Maximum 5 populations.",
+            "type": "INT",
+            "visibilityCondition": "model.advance_activate && model.population_definition_method == 'manual'"
+        },
+        {
+            "name": "manual_populations_dict_11",
+            "label": "Population 1",
+            "description": "Precise the columns and theirs corresponding value(s) for the population",
+            "type": "MAP",
+            "visibilityCondition": "model.advance_activate && model.population_definition_method == 'manual' && model.num_populations >= 1"
+        },
+        {
+            "name": "manual_populations_dict_12",
+            "label": "Population 2",
+            "description": "Precise the columns and theirs corresponding value(s) for the population",
+            "type": "MAP",
+            "visibilityCondition": "model.advance_activate && model.population_definition_method == 'manual' && model.num_populations >= 2"
+        },
+        {
+            "name": "manual_populations_dict_13",
+            "label": "Population 3",
+            "description": "Precise the columns and theirs corresponding value(s) for the population",
+            "type": "MAP",
+            "visibilityCondition": "model.advance_activate && model.population_definition_method == 'manual' && model.num_populations >= 3"
+        },
+        {
+            "name": "manual_populations_dict_14",
+            "label": "Population 4",
+            "description": "Precise the columns and theirs corresponding value(s) for the population",
+            "type": "MAP",
+            "visibilityCondition": "model.advance_activate && model.population_definition_method == 'manual' && model.num_populations >= 4"
+        },
+        {
+            "name": "manual_populations_dict_15",
+            "label": "Population 5",
+            "description": "Precise the columns and theirs corresponding value(s) for the population",
+            "type": "MAP",
+            "visibilityCondition": "model.advance_activate && model.population_definition_method == 'manual' && model.num_populations >= 5"
+        },
+        {
+            "name": "brute_force_populations_dict",
+            "label": "Condition dictionary",
+            "description": "Precise the columns and theirs corresponding value(s) for the populations, each value groups need to be in a list.",
+            "type": "MAP",
+            "visibilityCondition": "model.advance_activate && model.population_definition_method == 'brute_force'"
+        }
+    ]
+
+}

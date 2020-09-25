@@ -1,0 +1,13 @@
+{
+    "id": "events-aggregator",
+    "version": "0.2.6",
+    "meta": {
+        "label": "Feature factory: events-aggregator",
+        "icon": "icon-magic",
+        "description": "Automatically generate multi-scale aggregates for events datasets, these aggregates can be fed into a machine learning model",
+        "author": "Dataiku (Du Phan)",
+        "licenseInfo": "Apache Software License",
+        "url": "https://www.dataiku.com/dss/plugins/info/events-aggregator.html",
+        "tags": ["Time Series", "AutoML", "Machine Learning"]
+    }
+}
