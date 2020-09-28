@@ -1,4 +1,4 @@
-PLUGIN_VERSION=0.2.7
+PLUGIN_VERSION=0.2.8
 PLUGIN_ID=events-aggregator
 
 all:
