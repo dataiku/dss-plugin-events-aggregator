@@ -124,11 +124,11 @@ class FeatureAggregator:
 
     def _compute_distinct_values(self, column, dataset):
         sql_query = sql_generation.make_distinct_values_query(column, dataset)
-        res = dialectHandler(dataset).get_executor().query_to_iter(sql_query)
+        res = dialectHandler(dataset).get_executor().query_to_df(sql_query)
         try:
-            return {str(res_item[0]): res_item[1] for res_item in res.iter_tuples()} # {value1: occurence1, ...}
+            return {str(res_item[0]): res_item[1] for res_item in res.itertuples()} # {value1: occurence1, ...}
         except: # weird unicode stuff
-            return {(res_item[0]).encode('utf-8'): res_item[1] for res_item in res.iter_tuples()} # {value1: occurence1, ...}
+            return {(res_item[0]).encode('utf-8'): res_item[1] for res_item in res.itertuples()} # {value1: occurence1, ...}
 
 
     #TODO too complex
