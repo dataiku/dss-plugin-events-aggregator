@@ -92,14 +92,6 @@
             "mandatory": false
         },
         {
-            "name": "buffer_width",
-            "label": "Buffer width (optional)",
-            "type": "INT",
-            "description":"Number of events to jump back.",
-            "mandatory": false,
-            "visibilityCondition": "model.time_reference_type == 'rolling_window'"
-        },
-        {
             "name": "sep1",
             "label": "Input features",
             "type": "SEPARATOR"
